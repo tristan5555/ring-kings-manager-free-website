@@ -356,10 +356,11 @@ function renderProfileStatus() {
 }
 
 function saveProfile(source = "modal") {
-  const emailInput = source === "home" ? els.homeLoginEmail : els.loginEmail;
-  const nameInput = source === "home" ? els.homeLoginName : els.loginName;
-  const gymInput = source === "home" ? els.homeLoginGym : els.loginGym;
-  const passwordInput = source === "home" ? els.homeLoginPassword : els.loginPassword;
+  const loginSource = source === "home" ? "home" : "modal";
+  const emailInput = loginSource === "home" ? els.homeLoginEmail : els.loginEmail;
+  const nameInput = loginSource === "home" ? els.homeLoginName : els.loginName;
+  const gymInput = loginSource === "home" ? els.homeLoginGym : els.loginGym;
+  const passwordInput = loginSource === "home" ? els.homeLoginPassword : els.loginPassword;
   const email = emailInput.value.trim().toLowerCase();
   const name = nameInput.value.trim() || "Guest Manager";
   const gym = gymInput.value.trim() || playerGymName();
@@ -393,7 +394,7 @@ function saveProfile(source = "modal") {
     renderProfileStatus();
     passwordInput.value = "";
     setSaveStatus(`Logged in as ${name}.`);
-    if (source !== "home") closeLoginPage();
+    showMenu();
   } catch (error) {
     if (els.loginStatus) els.loginStatus.textContent = "Login could not be saved in this browser.";
     if (els.homeLoginStatus) els.homeLoginStatus.textContent = "Login could not be saved in this browser.";
@@ -3363,7 +3364,7 @@ els.closeLogin.addEventListener("click", closeLoginPage);
 els.loginPage.addEventListener("click", event => {
   if (event.target === els.loginPage) closeLoginPage();
 });
-els.saveLogin.addEventListener("click", saveProfile);
+els.saveLogin.addEventListener("click", () => saveProfile("modal"));
 els.forgotPassword.addEventListener("click", () => forgotPassword("modal"));
 els.logoutProfile.addEventListener("click", logoutProfile);
 els.menuLogin.addEventListener("click", openLoginPage);
