@@ -369,13 +369,13 @@ function saveProfile(source = "modal") {
     const message = "Enter a valid email address.";
     if (els.loginStatus) els.loginStatus.textContent = message;
     if (els.homeLoginStatus) els.homeLoginStatus.textContent = message;
-    return;
+    return false;
   }
   if (!password) {
     const message = "Enter a password to login or create this profile.";
     if (els.loginStatus) els.loginStatus.textContent = message;
     if (els.homeLoginStatus) els.homeLoginStatus.textContent = message;
-    return;
+    return false;
   }
   try {
     const existingAccount = loadAccount(email);
@@ -383,7 +383,7 @@ function saveProfile(source = "modal") {
       const message = "Wrong password for this email.";
       if (els.loginStatus) els.loginStatus.textContent = message;
       if (els.homeLoginStatus) els.homeLoginStatus.textContent = message;
-      return;
+      return false;
     }
     const account = { email, name, gym, password, savedAt: new Date().toISOString() };
     localStorage.setItem(accountKeyFor(email), JSON.stringify(account));
@@ -395,10 +395,28 @@ function saveProfile(source = "modal") {
     passwordInput.value = "";
     setSaveStatus(`Logged in as ${name}.`);
     showMenu();
+    return true;
   } catch (error) {
     if (els.loginStatus) els.loginStatus.textContent = "Login could not be saved in this browser.";
     if (els.homeLoginStatus) els.homeLoginStatus.textContent = "Login could not be saved in this browser.";
+    return false;
   }
+}
+
+function homeLoginFieldsReady() {
+  return Boolean(els.homeLoginEmail.value.trim() || els.homeLoginPassword.value.trim() || els.homeLoginName.value.trim());
+}
+
+function playFromHome() {
+  if (isLoggedIn()) {
+    showMenu();
+    return;
+  }
+  if (homeLoginFieldsReady()) {
+    saveProfile("home");
+    return;
+  }
+  requireLogin();
 }
 
 function forgotPassword(source = "modal") {
@@ -3346,8 +3364,8 @@ els.closeHowToPlay.addEventListener("click", () => closePanel(els.howToPlayPanel
 els.howToPlayPanel.addEventListener("click", event => {
   if (event.target === els.howToPlayPanel) closePanel(els.howToPlayPanel);
 });
-els.homePlayNow.addEventListener("click", showMenu);
-els.homeStartCareer.addEventListener("click", showMenu);
+els.homePlayNow.addEventListener("click", playFromHome);
+els.homeStartCareer.addEventListener("click", playFromHome);
 els.homeContinue.addEventListener("click", openUniverseOrSave);
 els.homeLogin.addEventListener("click", openLoginPage);
 els.homeLoginCard.addEventListener("submit", event => {
