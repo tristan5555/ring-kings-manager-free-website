@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://tristan5555.github.io/ring-kings-manager-free-website/sitemap.xml
