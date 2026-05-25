@@ -130,6 +130,10 @@ const els = {
   homeSaveLogin: document.querySelector("#homeSaveLogin"),
   homeProfileStatus: document.querySelector("#homeProfileStatus"),
   homeLoginStatus: document.querySelector("#homeLoginStatus"),
+  homeChatLog: document.querySelector("#homeChatLog"),
+  homeChatForm: document.querySelector("#homeChatForm"),
+  homeChatInput: document.querySelector("#homeChatInput"),
+  homeChatSend: document.querySelector("#homeChatSend"),
   loginPage: document.querySelector("#loginPage"),
   closeLogin: document.querySelector("#closeLogin"),
   loginName: document.querySelector("#loginName"),
@@ -339,6 +343,51 @@ function openLoginPage() {
 
 function closeLoginPage() {
   els.loginPage.classList.add("hidden");
+}
+
+function chatReplyFor(message) {
+  const text = message.toLowerCase();
+  if (text.includes("train") || text.includes("camp")) {
+    return "Training can sharpen all 10 active gym fighters each week. Booked fighters use a 4-session camp before fight night.";
+  }
+  if (text.includes("contract") || text.includes("offer") || text.includes("money")) {
+    return "Contract money is tied to rating, record, star power, and promotion prestige. New fighters get smaller offers, then earn better deals as they win.";
+  }
+  if (text.includes("fight") || text.includes("round") || text.includes("title")) {
+    return "Fight offers try to match similar ratings. Lower-card fights are shorter, feature fights can go longer, and title fights are 12 rounds.";
+  }
+  if (text.includes("gym") || text.includes("leaderboard")) {
+    return "Your gym can hold 10 fighters. Recruit free agents, train the roster, and climb the gym leaderboard as your record improves.";
+  }
+  if (text.includes("save") || text.includes("load") || text.includes("login")) {
+    return "Login saves your local manager profile. Use Save Game in the menu or top bar to save the full boxing universe.";
+  }
+  if (text.includes("promotion") || text.includes("show") || text.includes("week")) {
+    return "Each week the universe shuffles promotion shows, simulates results, updates rankings, and can open or close promotions over time.";
+  }
+  if (text.includes("hello") || text.includes("hi")) {
+    return "Hey manager. Start by logging in, then build your gym and take the first smart contract offer.";
+  }
+  return "Good question. Try the game menu for Contracts, Training, Fight Offers, Gym, Rankings, and News. The best first move is sign a prospect, train weekly, then accept a fair fight offer.";
+}
+
+function addHomeChatMessage(sender, message, type = "coach") {
+  const item = document.createElement("div");
+  item.className = `chat-message ${type}`;
+  item.innerHTML = `<strong>${sender}</strong><p>${message}</p>`;
+  els.homeChatLog.appendChild(item);
+  const messages = [...els.homeChatLog.querySelectorAll(".chat-message")];
+  messages.slice(0, Math.max(0, messages.length - 8)).forEach(messageItem => messageItem.remove());
+  els.homeChatLog.scrollTop = els.homeChatLog.scrollHeight;
+}
+
+function sendHomeChat(event) {
+  event.preventDefault();
+  const message = els.homeChatInput.value.trim();
+  if (!message) return;
+  addHomeChatMessage("You", message, "player");
+  els.homeChatInput.value = "";
+  window.setTimeout(() => addHomeChatMessage("Coach", chatReplyFor(message), "coach"), 180);
 }
 
 function setSaveStatus(message) {
@@ -3022,6 +3071,7 @@ els.homeLoginCard.addEventListener("submit", event => {
   event.preventDefault();
   saveProfile("home");
 });
+els.homeChatForm.addEventListener("submit", sendHomeChat);
 els.closeLogin.addEventListener("click", closeLoginPage);
 els.loginPage.addEventListener("click", event => {
   if (event.target === els.loginPage) closeLoginPage();

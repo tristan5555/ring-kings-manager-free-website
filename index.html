@@ -54,6 +54,25 @@
           <p id="homeLoginStatus" class="save-status">Local profile for this browser.</p>
         </form>
       </div>
+      <section class="home-chat" aria-label="Home screen chat">
+        <div class="chat-head">
+          <div>
+            <p class="eyebrow">Corner Chat</p>
+            <h2>Ask the game coach</h2>
+          </div>
+          <span class="tag ready-tag">Local chat</span>
+        </div>
+        <div id="homeChatLog" class="chat-log" aria-live="polite">
+          <div class="chat-message coach">
+            <strong>Coach</strong>
+            <p>Welcome to Ring Kings Manager. Ask about training, contracts, fight offers, gyms, saves, rankings, or weekly shows.</p>
+          </div>
+        </div>
+        <form id="homeChatForm" class="chat-form">
+          <input id="homeChatInput" type="text" maxlength="140" placeholder="Ask about the boxing manager...">
+          <button id="homeChatSend" class="primary" type="submit">Send</button>
+        </form>
+      </section>
       <section class="home-stats" aria-label="Game highlights">
         <article>
           <strong>4,000+</strong>
