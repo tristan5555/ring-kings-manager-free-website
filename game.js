@@ -150,19 +150,6 @@ const els = {
   homeOpenLeaderboard: document.querySelector("#homeOpenLeaderboard"),
   homeLeaderboardSummary: document.querySelector("#homeLeaderboardSummary"),
   homeLeaderboardPreview: document.querySelector("#homeLeaderboardPreview"),
-  homeDashboardBadge: document.querySelector("#homeDashboardBadge"),
-  homeDashProfile: document.querySelector("#homeDashProfile"),
-  homeDashGym: document.querySelector("#homeDashGym"),
-  homeDashUniverse: document.querySelector("#homeDashUniverse"),
-  homeDashShows: document.querySelector("#homeDashShows"),
-  homeDashRank: document.querySelector("#homeDashRank"),
-  homeDashRecord: document.querySelector("#homeDashRecord"),
-  homeDashNext: document.querySelector("#homeDashNext"),
-  homeDashTip: document.querySelector("#homeDashTip"),
-  homeQuickContracts: document.querySelector("#homeQuickContracts"),
-  homeQuickTraining: document.querySelector("#homeQuickTraining"),
-  homeQuickFights: document.querySelector("#homeQuickFights"),
-  homeQuickRankings: document.querySelector("#homeQuickRankings"),
   homeAdminToggle: document.querySelector("#homeAdminToggle"),
   homeAdminPanel: document.querySelector("#homeAdminPanel"),
   adminChatInbox: document.querySelector("#adminChatInbox"),
@@ -364,7 +351,6 @@ function showHome() {
   document.body.classList.remove("menu-open");
   renderProfileStatus();
   renderHomeLeaderboardPreview();
-  renderHomeDashboard();
 }
 
 function showMenu() {
@@ -1430,32 +1416,6 @@ function renderHomeLeaderboardPreview() {
       <span>Avg ${entry.averageRating} | ${entry.fighters} fighters</span>
     </article>
   `).join("");
-}
-
-function renderHomeDashboard() {
-  const profile = loadProfile();
-  const roster = activePlayerRoster();
-  const rankedEntries = [...(state.onlineLeaderboard || [])]
-    .sort((a, b) => b.score - a.score || b.averageRating - a.averageRating);
-  const playerEntry = rankedEntries.find(entry => entry.id === onlinePlayerId());
-  const playerRank = rankedEntries.findIndex(entry => entry.id === onlinePlayerId()) + 1;
-  const scheduledFights = state.schedule.reduce((sum, show) => sum + show.fights, 0);
-  els.homeDashboardBadge.textContent = calendarLabel();
-  els.homeDashProfile.textContent = profile?.name || "Guest Player";
-  els.homeDashGym.textContent = profile?.gym || playerGymName();
-  els.homeDashUniverse.textContent = `${state.fighters.filter(fighter => !fighter.retired).length.toLocaleString()} fighters`;
-  els.homeDashShows.textContent = `${promotions.length} promotions | ${scheduledFights} booked fights`;
-  els.homeDashRank.textContent = playerRank ? `#${playerRank}` : "Not submitted";
-  els.homeDashRecord.textContent = playerEntry ? `${playerEntry.gymName} | ${playerEntry.record} | Score ${playerEntry.score}` : "Submit your gym to rank.";
-  els.homeDashNext.textContent = roster.length ? `${roster.length}/${maxPlayerFighters} fighters` : "Sign first fighter";
-  els.homeDashTip.textContent = roster.length
-    ? "Train the roster, accept fair fight offers, then sim the next week."
-    : "Open Contracts and sign your first prospect.";
-}
-
-function openHomePanel(panel) {
-  hideMenu();
-  openPanel(panel);
 }
 
 function renderGym() {
@@ -3298,13 +3258,6 @@ els.homeLoginCard.addEventListener("submit", event => {
 });
 els.homeChatForm.addEventListener("submit", sendHomeChat);
 els.homeOpenLeaderboard.addEventListener("click", openGymLeaderboard);
-els.homeQuickContracts.addEventListener("click", () => openHomePanel(els.contractsPanel));
-els.homeQuickTraining.addEventListener("click", () => openHomePanel(els.trainingPanel));
-els.homeQuickFights.addEventListener("click", () => openHomePanel(els.fightOffersPanel));
-els.homeQuickRankings.addEventListener("click", () => {
-  hideMenu();
-  document.querySelector("[aria-label='Rankings']")?.scrollIntoView({ behavior: "smooth", block: "start" });
-});
 els.homeAdminToggle.addEventListener("click", toggleAdminChat);
 els.adminChatForm.addEventListener("submit", sendAdminChat);
 els.clearHomeChat.addEventListener("click", clearHomeChat);
