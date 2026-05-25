@@ -130,9 +130,16 @@ button.primary {
 }
 
 .home-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(300px, .65fr);
+  gap: 24px;
+  align-items: center;
   width: min(820px, 100%);
   margin: 10vh auto 0;
-  padding-right: clamp(0px, 9vw, 160px);
+}
+
+.home-copy-block {
+  padding-right: clamp(0px, 6vw, 90px);
 }
 
 .home-hero h1 {
@@ -156,6 +163,38 @@ button.primary {
 
 .hero-actions button {
   min-width: 150px;
+}
+
+.home-login-card {
+  display: grid;
+  gap: 11px;
+  border: 1px solid rgba(245, 241, 232, .18);
+  border-radius: 8px;
+  background: rgba(17, 19, 24, .84);
+  padding: 18px;
+  box-shadow: 0 20px 55px rgba(0, 0, 0, .28);
+  backdrop-filter: blur(12px);
+}
+
+.home-login-card h2 {
+  margin: -4px 0 2px;
+  font-size: 24px;
+}
+
+.home-login-card label {
+  display: grid;
+  gap: 7px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.home-login-card input {
+  min-height: 42px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: #111318;
+  color: var(--text);
+  padding: 0 12px;
 }
 
 .home-stats,
@@ -1364,6 +1403,9 @@ select {
 
   .home-hero {
     margin-top: 7vh;
+  }
+
+  .home-copy-block {
     padding-right: 0;
   }
 

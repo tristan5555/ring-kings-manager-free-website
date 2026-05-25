@@ -124,7 +124,12 @@ const els = {
   homeLogin: document.querySelector("#homeLogin"),
   homeStartCareer: document.querySelector("#homeStartCareer"),
   homeContinue: document.querySelector("#homeContinue"),
+  homeLoginCard: document.querySelector("#homeLoginCard"),
+  homeLoginName: document.querySelector("#homeLoginName"),
+  homeLoginGym: document.querySelector("#homeLoginGym"),
+  homeSaveLogin: document.querySelector("#homeSaveLogin"),
   homeProfileStatus: document.querySelector("#homeProfileStatus"),
+  homeLoginStatus: document.querySelector("#homeLoginStatus"),
   loginPage: document.querySelector("#loginPage"),
   closeLogin: document.querySelector("#closeLogin"),
   loginName: document.querySelector("#loginName"),
@@ -262,14 +267,19 @@ function renderProfileStatus() {
     ? `Logged in as ${profile.name}${profile.gym ? ` | ${profile.gym}` : ""}.`
     : "Playing as Guest.";
   if (els.homeProfileStatus) els.homeProfileStatus.textContent = message;
+  if (els.homeLoginStatus) els.homeLoginStatus.textContent = message;
   if (els.loginStatus) els.loginStatus.textContent = message;
   if (els.loginName && profile?.name) els.loginName.value = profile.name;
   if (els.loginGym && profile?.gym) els.loginGym.value = profile.gym;
+  if (els.homeLoginName && profile?.name) els.homeLoginName.value = profile.name;
+  if (els.homeLoginGym && profile?.gym) els.homeLoginGym.value = profile.gym;
 }
 
-function saveProfile() {
-  const name = els.loginName.value.trim() || "Guest Manager";
-  const gym = els.loginGym.value.trim() || playerGymName();
+function saveProfile(source = "modal") {
+  const nameInput = source === "home" ? els.homeLoginName : els.loginName;
+  const gymInput = source === "home" ? els.homeLoginGym : els.loginGym;
+  const name = nameInput.value.trim() || "Guest Manager";
+  const gym = gymInput.value.trim() || playerGymName();
   try {
     localStorage.setItem(profileKey, JSON.stringify({ name, gym, savedAt: new Date().toISOString() }));
     state.playerGym = { name: gym, capacity: maxPlayerFighters };
@@ -277,9 +287,10 @@ function saveProfile() {
     render();
     renderProfileStatus();
     setSaveStatus(`Logged in as ${name}.`);
-    closeLoginPage();
+    if (source !== "home") closeLoginPage();
   } catch (error) {
     if (els.loginStatus) els.loginStatus.textContent = "Login could not be saved in this browser.";
+    if (els.homeLoginStatus) els.homeLoginStatus.textContent = "Login could not be saved in this browser.";
   }
 }
 
@@ -3007,6 +3018,10 @@ els.homePlayNow.addEventListener("click", showMenu);
 els.homeStartCareer.addEventListener("click", showMenu);
 els.homeContinue.addEventListener("click", openUniverseOrSave);
 els.homeLogin.addEventListener("click", openLoginPage);
+els.homeLoginCard.addEventListener("submit", event => {
+  event.preventDefault();
+  saveProfile("home");
+});
 els.closeLogin.addEventListener("click", closeLoginPage);
 els.loginPage.addEventListener("click", event => {
   if (event.target === els.loginPage) closeLoginPage();
