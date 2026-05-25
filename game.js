@@ -3354,6 +3354,7 @@ els.homeLoginCard.addEventListener("submit", event => {
   event.preventDefault();
   saveProfile("home");
 });
+els.homeSaveLogin.addEventListener("click", () => saveProfile("home"));
 els.homeForgotPassword.addEventListener("click", () => forgotPassword("home"));
 els.homeChatForm.addEventListener("submit", sendHomeChat);
 els.homeOpenLeaderboard.addEventListener("click", openGymLeaderboard);
