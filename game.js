@@ -143,6 +143,7 @@ const els = {
   homeLoginGym: document.querySelector("#homeLoginGym"),
   homeLoginPassword: document.querySelector("#homeLoginPassword"),
   homeSaveLogin: document.querySelector("#homeSaveLogin"),
+  homeCreateAccount: document.querySelector("#homeCreateAccount"),
   homeForgotPassword: document.querySelector("#homeForgotPassword"),
   homeProfileStatus: document.querySelector("#homeProfileStatus"),
   homeLoginStatus: document.querySelector("#homeLoginStatus"),
@@ -167,6 +168,7 @@ const els = {
   loginGym: document.querySelector("#loginGym"),
   loginPassword: document.querySelector("#loginPassword"),
   saveLogin: document.querySelector("#saveLogin"),
+  createAccount: document.querySelector("#createAccount"),
   forgotPassword: document.querySelector("#forgotPassword"),
   logoutProfile: document.querySelector("#logoutProfile"),
   loginStatus: document.querySelector("#loginStatus"),
@@ -355,7 +357,7 @@ function renderProfileStatus() {
   updateAdminAccess();
 }
 
-function saveProfile(source = "modal") {
+function saveProfile(source = "modal", mode = "login") {
   const loginSource = source === "home" ? "home" : "modal";
   const emailInput = loginSource === "home" ? els.homeLoginEmail : els.loginEmail;
   const nameInput = loginSource === "home" ? els.homeLoginName : els.loginName;
@@ -379,6 +381,18 @@ function saveProfile(source = "modal") {
   }
   try {
     const existingAccount = loadAccount(email);
+    if (mode === "create" && existingAccount) {
+      const message = "Account already exists. Use Login or Forgot Password.";
+      if (els.loginStatus) els.loginStatus.textContent = message;
+      if (els.homeLoginStatus) els.homeLoginStatus.textContent = message;
+      return false;
+    }
+    if (mode === "login" && !existingAccount) {
+      const message = "No account found for this email. Click Create Account first.";
+      if (els.loginStatus) els.loginStatus.textContent = message;
+      if (els.homeLoginStatus) els.homeLoginStatus.textContent = message;
+      return false;
+    }
     if (existingAccount && existingAccount.password !== password) {
       const message = "Wrong password for this email.";
       if (els.loginStatus) els.loginStatus.textContent = message;
@@ -393,7 +407,7 @@ function saveProfile(source = "modal") {
     render();
     renderProfileStatus();
     passwordInput.value = "";
-    setSaveStatus(`Logged in as ${name}.`);
+    setSaveStatus(`${mode === "create" ? "Account created" : "Logged in"} as ${name}.`);
     showMenu();
     return true;
   } catch (error) {
@@ -413,7 +427,7 @@ function playFromHome() {
     return;
   }
   if (homeLoginFieldsReady()) {
-    saveProfile("home");
+    saveProfile("home", "login");
     return;
   }
   requireLogin();
@@ -3370,9 +3384,10 @@ els.homeContinue.addEventListener("click", openUniverseOrSave);
 els.homeLogin.addEventListener("click", openLoginPage);
 els.homeLoginCard.addEventListener("submit", event => {
   event.preventDefault();
-  saveProfile("home");
+  saveProfile("home", "login");
 });
-els.homeSaveLogin.addEventListener("click", () => saveProfile("home"));
+els.homeSaveLogin.addEventListener("click", () => saveProfile("home", "login"));
+els.homeCreateAccount.addEventListener("click", () => saveProfile("home", "create"));
 els.homeForgotPassword.addEventListener("click", () => forgotPassword("home"));
 els.homeChatForm.addEventListener("submit", sendHomeChat);
 els.homeOpenLeaderboard.addEventListener("click", openGymLeaderboard);
@@ -3383,7 +3398,8 @@ els.closeLogin.addEventListener("click", closeLoginPage);
 els.loginPage.addEventListener("click", event => {
   if (event.target === els.loginPage) closeLoginPage();
 });
-els.saveLogin.addEventListener("click", () => saveProfile("modal"));
+els.saveLogin.addEventListener("click", () => saveProfile("modal", "login"));
+els.createAccount.addEventListener("click", () => saveProfile("modal", "create"));
 els.forgotPassword.addEventListener("click", () => forgotPassword("modal"));
 els.logoutProfile.addEventListener("click", logoutProfile);
 els.menuLogin.addEventListener("click", openLoginPage);
