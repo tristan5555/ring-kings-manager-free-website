@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Ring Kings Manager</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <section id="mainMenu" class="main-menu" aria-label="Main menu">
+      <div class="menu-inner">
+        <p class="eyebrow">Career Universe</p>
+        <h1>Ring Kings Manager</h1>
+        <p class="menu-copy">Sign fighters to contracts and simulate weekly cards across six boxing promotions.</p>
+        <div class="menu-actions">
+          <button id="startCareer" class="primary">Start Career</button>
+          <button id="openUniverse">Open Universe</button>
+          <button id="menuSave">Save Game</button>
+          <button id="menuLoad">Load Game</button>
+          <button id="menuHowToPlay">How to Play</button>
+          <button id="menuPromotions">Promotions</button>
+          <button id="menuLeaderboard">Leaderboard</button>
+          <button id="menuReset">New Universe</button>
+        </div>
+        <p id="menuSaveStatus" class="save-status">No save loaded.</p>
+      </div>
+    </section>
+
+    <section id="howToPlayPanel" class="news-panel hidden" aria-label="How to play">
+      <div class="news-window guide-window">
+        <div class="section-head">
+          <h2>How to Play</h2>
+          <button id="closeHowToPlay" type="button">Close</button>
+        </div>
+        <div class="guide-grid">
+          <article class="guide-card">
+            <h3>1. Sign Fighters</h3>
+            <p>Pick a contract offer from a promotion, then sign a fighter. You can build up to 10 active fighters in your gym.</p>
+          </article>
+          <article class="guide-card">
+            <h3>2. Train Your Roster</h3>
+            <p>Use Training to sharpen up to 10 fighters each week. Booked fighters can train through a 4-session fight camp before their bout.</p>
+          </article>
+          <article class="guide-card">
+            <h3>Training Limit</h3>
+            <p>Your gym can train all 10 active roster fighters per week. Use Train All Available when you want the whole gym working at once.</p>
+          </article>
+          <article class="guide-card">
+            <h3>3. Take Fight Offers</h3>
+            <p>Open Fight Offers when a fighter is ready. Offers try to match opponents near your fighter's rating, then begin a longer 4-week camp.</p>
+          </article>
+          <article class="guide-card">
+            <h3>Longer Fights</h3>
+            <p>Fight rounds now depend on fight size. Lower-card fights can be 4, 6, or 8 rounds, medium fights can be 8 or 10, feature fights can be 10 or 12, and title fights are always 12 rounds.</p>
+          </article>
+          <article class="guide-card">
+            <h3>4. Sim Weeks</h3>
+            <p>Simulate Next Week to run scheduled promotion shows, resolve booked fights, update rankings, and advance contracts.</p>
+          </article>
+          <article class="guide-card">
+            <h3>5. Watch Cards</h3>
+            <p>Use Cards to check record, earnings, title rank, market value, contract status, condition, next fight, and camp progress.</p>
+          </article>
+          <article class="guide-card">
+            <h3>6. Manage the World</h3>
+            <p>Gyms, free agents, promotions, retirements, new prospects, champions, rankings, news, and show schedules keep changing as weeks pass.</p>
+          </article>
+        </div>
+        <p class="guide-note">Tip: Save from the main menu or in-game top bar before closing the browser.</p>
+      </div>
+    </section>
+
+    <main class="shell">
+      <section class="topbar">
+        <div>
+          <p class="eyebrow">Text-Based Career Simulator</p>
+          <h1>Ring Kings Manager</h1>
+        </div>
+        <div class="top-actions">
+          <button id="saveGame">Save</button>
+          <button id="loadGame">Load</button>
+          <button id="backToMenu">Menu</button>
+          <div class="week-box">
+            <span>Year</span>
+            <strong id="yearNumber">2026</strong>
+          </div>
+          <div class="week-box">
+            <span>Week</span>
+            <strong id="weekNumber">1</strong>
+          </div>
+        </div>
+      </section>
+      <p id="saveStatus" class="save-status">No save loaded.</p>
+
+      <nav class="game-nav" aria-label="Game navigation">
+        <button data-jump=".creator">Roster</button>
+        <button id="openGym" type="button">Gym</button>
+        <button id="openLeaderboard" type="button">Leaderboard</button>
+        <button id="openFreeAgents" type="button">Free Agents</button>
+        <button id="openTraining" type="button">Training</button>
+        <button id="openContracts" type="button">Contracts</button>
+        <button id="openFightOffers" type="button">Fight Offers</button>
+        <button id="openFighterCards" type="button">Cards</button>
+        <button id="openRosters" type="button">Champions</button>
+        <button id="openSchedule" type="button">Schedule</button>
+        <button id="openResults" type="button">Results</button>
+        <button id="openActivity" type="button">Activity</button>
+        <button id="openNews" type="button">News</button>
+        <button data-jump="[aria-label='Rankings']">Rankings</button>
+        <button data-jump="[aria-label='Young prospect rankings']">Prospects</button>
+      </nav>
+
+      <section class="layout">
+        <aside class="panel creator" aria-label="Fighter signings">
+          <h2>Fighter Signings</h2>
+          <label>
+            Fighter name
+            <input id="fighterName" type="text" maxlength="28" value="Your Prospect">
+          </label>
+          <label class="check-row">
+            <input id="randomFighters" type="checkbox">
+            Random names, classes, styles, and ratings
+          </label>
+          <label>
+            Weight class
+            <select id="weightClass"></select>
+          </label>
+          <label>
+            Fighting style
+            <select id="style">
+              <option>Balanced</option>
+              <option>Power Puncher</option>
+              <option>Out-Boxer</option>
+              <option>Pressure Fighter</option>
+              <option>Counter Puncher</option>
+              <option>Defensive Specialist</option>
+            </select>
+          </label>
+          <div class="offer-label">Contract offers</div>
+          <div id="contractOffer" class="offer-grid"></div>
+          <button id="createFighter" class="primary">Sign Fighter(s)</button>
+          <div id="playerCard" class="fighter-card empty">No fighter signed yet.</div>
+        </aside>
+
+        <section class="panel controls" aria-label="Simulation controls">
+          <div class="section-head">
+            <h2>Game Dashboard</h2>
+            <span>Advance the boxing universe and manage your roster</span>
+          </div>
+          <div class="actions">
+            <button id="simulateWeek" class="primary">Simulate Next Week</button>
+            <button id="simulateMonth">Simulate 4 Weeks</button>
+            <button id="bookPlayerFight">Fight Offers</button>
+            <button id="resetGame">Reset Universe</button>
+          </div>
+          <div class="stats-grid">
+            <div><span>Total Fighters</span><strong id="totalFighters">4000</strong></div>
+            <div><span>Promotions</span><strong id="promotionCount">6</strong></div>
+            <div><span>Weight Classes</span><strong>6</strong></div>
+            <div><span>Booked Fights</span><strong id="weeklyFights">0</strong></div>
+          </div>
+        </section>
+
+        <section class="panel wide" aria-label="Rankings">
+          <div class="section-head">
+            <h2>Top 100 Fighters</h2>
+            <span>Ranked by wins, rating, and championship form</span>
+          </div>
+          <div id="rankings" class="rankings"></div>
+        </section>
+
+        <section class="panel wide" aria-label="Young prospect rankings">
+          <div class="section-head">
+            <h2>Top 10 Young Prospects</h2>
+            <span>Active fighters age 23 and under with rising ratings</span>
+          </div>
+          <div id="prospectRankings" class="rankings"></div>
+        </section>
+      </section>
+    </main>
+
+    <section id="newsPanel" class="news-panel hidden" aria-label="Promotion world news">
+      <div class="news-window">
+        <div class="section-head">
+          <h2>Promotion News</h2>
+          <button id="closeNews" type="button">Close</button>
+        </div>
+        <p id="promotionNewsSummary" class="news-summary">Promotions can launch or shut down as the game advances.</p>
+        <div id="promotionNews" class="signing-news"></div>
+      </div>
+    </section>
+
+    <section id="trainingPanel" class="news-panel hidden" aria-label="Training and career moves">
+      <div class="news-window">
+        <div class="section-head">
+          <h2>Training & Career Moves</h2>
+          <button id="closeTraining" type="button">Close</button>
+        </div>
+        <div class="sub-panel-grid">
+          <div class="training-box">
+            <h3>Training Camp</h3>
+            <label>
+              Fighter
+              <select id="trainingFighter"></select>
+            </label>
+            <label>
+              Focus
+              <select id="trainingFocus">
+                <option>Balanced Camp</option>
+                <option>Power</option>
+                <option>Defense</option>
+                <option>Footwork</option>
+                <option>Stamina</option>
+              </select>
+            </label>
+            <label>
+              Intensity
+              <select id="trainingIntensity">
+                <option>Light</option>
+                <option selected>Standard</option>
+                <option>Hard</option>
+                <option>Elite</option>
+              </select>
+            </label>
+            <button id="trainFighter">Train Fighter</button>
+            <button id="trainAllFighters" type="button">Train All Available</button>
+            <p id="trainingReport" class="training-report">Sign a fighter to open training camp.</p>
+          </div>
+          <div class="training-box">
+            <h3>Career Moves</h3>
+            <label>
+              Fighter
+              <select id="careerFighter"></select>
+            </label>
+            <div class="career-actions">
+              <button id="moveWeightUp" type="button">Move Up</button>
+              <button id="moveWeightDown" type="button">Move Down</button>
+              <button id="retirePlayerFighter" type="button">Retire</button>
+            </div>
+            <p id="careerReport" class="training-report">Move weight class or retire a roster fighter.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="gymPanel" class="news-panel hidden" aria-label="Gym management">
+      <div class="news-window roster-window">
+        <div class="section-head">
+          <h2>Gym Management</h2>
+          <button id="closeGym" type="button">Close</button>
+        </div>
+        <div class="gym-controls">
+          <label>
+            Your gym name
+            <input id="gymName" type="text" maxlength="34" value="Kings Boxing Gym">
+          </label>
+          <button id="saveGymName" type="button">Save Gym</button>
+        </div>
+        <p id="gymSummary" class="news-summary">Your gym can hold 10 active fighters.</p>
+        <div id="gymRoster" class="fighter-cards"></div>
+        <h3 id="gymLeaderboardTitle" class="subhead">Top Gym Leaderboard</h3>
+        <div id="aiGyms" class="promotion-rosters"></div>
+        <h3 class="subhead">Online Player Leaderboard</h3>
+        <div class="career-actions">
+          <button id="submitOnlineLeaderboard" type="button">Submit My Gym</button>
+          <button id="refreshOnlineLeaderboard" type="button">Refresh</button>
+        </div>
+        <p id="onlineLeaderboardSummary" class="news-summary">Local online preview is saved in this browser.</p>
+        <div id="onlineLeaderboard" class="signing-news"></div>
+        <h3 class="subhead">Leaderboard History</h3>
+        <p id="gymLeaderboardSummary" class="news-summary">Weekly top gym snapshots are saved in your game.</p>
+        <div id="gymLeaderboardHistory" class="signing-news"></div>
+      </div>
+    </section>
+
+    <section id="fightOffersPanel" class="news-panel hidden" aria-label="Fight offers">
+      <div class="news-window">
+        <div class="section-head">
+          <h2>Fight Offers</h2>
+          <button id="closeFightOffers" type="button">Close</button>
+        </div>
+        <p id="fightOfferSummary" class="news-summary">Ready fighters can receive opponent offers here.</p>
+        <div id="fightOffers" class="fight-offers"></div>
+      </div>
+    </section>
+
+    <section id="freeAgentsPanel" class="news-panel hidden" aria-label="Gym free agent market">
+      <div class="news-window roster-window">
+        <div class="section-head">
+          <h2>Free Agent Market</h2>
+          <button id="closeFreeAgents" type="button">Close</button>
+        </div>
+        <p id="freeAgentSummary" class="news-summary">Independent fighters can be recruited to your gym.</p>
+        <div class="career-actions">
+          <button id="scoutFreeAgents" type="button">Scout Free Agents</button>
+        </div>
+        <div id="freeAgentMarket" class="fighter-cards"></div>
+      </div>
+    </section>
+
+    <section id="fighterCardsPanel" class="news-panel hidden" aria-label="Fighter stat cards">
+      <div class="news-window roster-window">
+        <div class="section-head">
+          <h2>Fighter Stat Cards</h2>
+          <button id="closeFighterCards" type="button">Close</button>
+        </div>
+        <p class="news-summary">Full player roster cards with career, contract, and condition stats</p>
+        <div id="fighterCards" class="fighter-cards"></div>
+      </div>
+    </section>
+
+    <section id="contractsPanel" class="news-panel hidden" aria-label="Promotion contracts">
+      <div class="news-window roster-window">
+        <div class="section-head">
+          <h2>Contract Offers</h2>
+          <button id="closeContracts" type="button">Close</button>
+        </div>
+        <p class="news-summary">Money scales with rating, wins, and experience.</p>
+        <div id="contractList" class="contract-list"></div>
+      </div>
+    </section>
+
+    <section id="activityPanel" class="news-panel hidden" aria-label="Promotion activity">
+      <div class="news-window roster-window">
+        <div class="section-head">
+          <h2>Promotion Activity</h2>
+          <button id="closeActivity" type="button">Close</button>
+        </div>
+        <div class="sub-panel-grid">
+          <section>
+            <h3>Promotion Signings</h3>
+            <p id="signingSummary" class="news-summary">Promotions will sign free agents every week.</p>
+            <div id="signingNews" class="signing-news"></div>
+          </section>
+          <section>
+            <h3>Retirements & Prospects</h3>
+            <p id="retirementSummary" class="news-summary">Older and injured fighters can retire as new prospects arrive.</p>
+            <div id="retirementNews" class="signing-news"></div>
+          </section>
+        </div>
+      </div>
+    </section>
+
+    <section id="schedulePanel" class="news-panel hidden" aria-label="Weekly show schedule">
+      <div class="news-window roster-window">
+        <div class="section-head">
+          <h2>Weekly Show Schedule</h2>
+          <button id="closeSchedule" type="button">Close</button>
+        </div>
+        <p id="scheduleSummary" class="news-summary">Promotions shuffle their weekly shows.</p>
+        <div id="scheduleList" class="schedule-list"></div>
+      </div>
+    </section>
+
+    <section id="resultsPanel" class="news-panel hidden" aria-label="Weekly results">
+      <div class="news-window roster-window">
+        <div class="section-head">
+          <h2>Weekly Shows & Results</h2>
+          <button id="closeResults" type="button">Close</button>
+        </div>
+        <p id="resultSummary" class="news-summary">Simulate week 1 to start the season.</p>
+        <div id="results" class="results"></div>
+      </div>
+    </section>
+
+    <section id="rosterPanel" class="news-panel hidden" aria-label="Promotion rosters and champions">
+      <div class="news-window roster-window">
+        <div class="section-head">
+          <h2>Promotion Rosters & Champions</h2>
+          <button id="closeRosters" type="button">Close</button>
+        </div>
+        <p id="promotionRosterSummary" class="news-summary">Current active promotion rosters and champions</p>
+        <div id="promotionRosters" class="promotion-rosters"></div>
+      </div>
+    </section>
+
+    <script src="game.js?v=boxer-face-avatars"></script>
+  </body>
+</html>
