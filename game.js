@@ -95,6 +95,18 @@ const aiGymNames = [
   "Champion's Yard", "Final Bell Academy", "Cornerstone Boxing", "High Guard Gym", "Prize Ring Stable",
   "Main Street Gloves", "Westside Combat Club", "Royal Road Boxing", "The Sparring Room", "Knuckle Line Gym"
 ];
+const onlinePlayerNames = [
+  "AceManager", "BellBoss", "CanvasKing", "TitleHunter", "JabMaster", "CornerChief", "PrizefightPro", "SouthpawGM",
+  "UppercutAdmin", "RingGeneral", "GymBuilder", "FightScout", "GoldenBell", "MainEventer", "BlueCorner", "RedCorner",
+  "ProspectLab", "ContractBoss", "RankingClimber", "KnockoutPlan", "PurseChaser", "Matchmaker99", "CampCaptain", "ScorecardPro",
+  "WorldTourGM", "TitleShot", "FightWeek", "RopeBoss", "GloveGuru", "StaminaCoach"
+];
+const onlineGymNameBank = [
+  "Apex Online Gym", "Global Ring Stable", "Prime Player Boxing", "Champion Cloud Gym", "World Ladder Academy",
+  "Digital Gloves Club", "Ranked Road Boxing", "Title Track Gym", "Main Event Factory", "Cross-Server Boxing",
+  "Open Bell Club", "Legacy Player Gym", "Summit Online Boxing", "Victory Sync Gym", "Golden Canvas Stable",
+  "All Star Corners", "Fight Network Gym", "Online Contender Club", "Blue Ribbon Boxing", "Global Prospect Room"
+];
 
 let state = {
   startYear: startingYear,
@@ -1269,6 +1281,15 @@ function recordGymLeaderboard() {
   });
 }
 
+function playerLeaderboardName() {
+  const profile = loadProfile();
+  return profile?.name?.trim() || "Guest Player";
+}
+
+function onlinePlayerId() {
+  return `player-${playerLeaderboardName().toLowerCase().replace(/[^a-z0-9]+/g, "-") || "guest"}`;
+}
+
 function playerOnlineLeaderboardEntry() {
   const playerGym = gymRecords().find(gym => gym.isPlayerGym) || {
     name: playerGymName(),
@@ -1281,8 +1302,8 @@ function playerOnlineLeaderboardEntry() {
     topFighter: "None"
   };
   return {
-    id: "local-player",
-    playerName: "You",
+    id: onlinePlayerId(),
+    playerName: playerLeaderboardName(),
     gymName: playerGym.name,
     score: playerGym.rankScore,
     fighters: playerGym.fighters,
@@ -1290,12 +1311,47 @@ function playerOnlineLeaderboardEntry() {
     averageRating: playerGym.averageRating,
     topFighter: playerGym.topFighter || "None",
     label: calendarLabel(),
-    submittedAt: new Date().toLocaleString()
+    submittedAt: new Date().toLocaleString(),
+    isHuman: true
   };
 }
 
-function submitOnlineLeaderboard() {
+function makeOnlineRivalEntry(index) {
+  const wins = randomInt(8, 160);
+  const losses = randomInt(0, Math.max(4, Math.floor(wins / 3)));
+  const draws = randomInt(0, 6);
+  const averageRating = randomInt(54, 94);
+  const topRating = Math.min(99, averageRating + randomInt(4, 12));
+  const fighters = randomInt(3, maxPlayerFighters);
+  const score = (wins * 2) + averageRating + topRating - losses + randomInt(-12, 18);
+  return {
+    id: `online-rival-${index}`,
+    playerName: onlinePlayerNames[index % onlinePlayerNames.length],
+    gymName: onlineGymNameBank[index % onlineGymNameBank.length],
+    score,
+    fighters,
+    record: `${wins}-${losses}-${draws}`,
+    averageRating,
+    topFighter: randomFighterName(randomItem(fighterOrigins).country),
+    label: `${startingYear + randomInt(0, 2)} season`,
+    submittedAt: new Date(Date.now() - randomInt(1, 28) * 86400000).toLocaleDateString(),
+    isHuman: false
+  };
+}
+
+function ensureOnlineLeaderboardField() {
   state.onlineLeaderboard = state.onlineLeaderboard || [];
+  const rivals = state.onlineLeaderboard.filter(entry => entry.id?.startsWith("online-rival-"));
+  if (rivals.length >= 120) return;
+  const existing = new Set(state.onlineLeaderboard.map(entry => entry.id));
+  for (let index = 0; index < 120; index += 1) {
+    const id = `online-rival-${index}`;
+    if (!existing.has(id)) state.onlineLeaderboard.push(makeOnlineRivalEntry(index));
+  }
+}
+
+function submitOnlineLeaderboard() {
+  ensureOnlineLeaderboardField();
   const entry = playerOnlineLeaderboardEntry();
   const existingIndex = state.onlineLeaderboard.findIndex(item => item.id === entry.id);
   if (existingIndex >= 0) {
@@ -1304,30 +1360,36 @@ function submitOnlineLeaderboard() {
     state.onlineLeaderboard.push(entry);
   }
   render();
-  setSaveStatus(`${entry.gymName} submitted to the online player leaderboard preview.`);
+  setSaveStatus(`${entry.gymName} submitted to all-player gym rankings as ${entry.playerName}.`);
 }
 
 function refreshOnlineLeaderboard() {
+  ensureOnlineLeaderboardField();
   renderOnlineLeaderboard();
-  setSaveStatus("Online player leaderboard refreshed.");
+  setSaveStatus("All-player gym rankings refreshed.");
 }
 
 function renderOnlineLeaderboard() {
-  state.onlineLeaderboard = state.onlineLeaderboard || [];
-  const entries = [...state.onlineLeaderboard].sort((a, b) => b.score - a.score || b.averageRating - a.averageRating);
+  ensureOnlineLeaderboardField();
+  const entries = [...state.onlineLeaderboard]
+    .sort((a, b) => b.score - a.score || b.averageRating - a.averageRating)
+    .slice(0, 100);
+  const playerRank = [...state.onlineLeaderboard]
+    .sort((a, b) => b.score - a.score || b.averageRating - a.averageRating)
+    .findIndex(entry => entry.id === onlinePlayerId()) + 1;
   els.onlineLeaderboardSummary.textContent = entries.length
-    ? `${entries.length} player gym entr${entries.length === 1 ? "y" : "ies"} saved locally.`
+    ? `Top ${entries.length} all-player gyms loaded. ${playerRank ? `Your gym rank is #${playerRank}.` : "Submit your gym to claim a rank."}`
     : "No player gym entries submitted yet.";
   els.onlineLeaderboard.innerHTML = entries.length ? entries.map((entry, index) => `
     <div class="signing">
       <div>
-        <b>#${index + 1} ${entry.gymName}</b> ${entry.playerName}
+        <b>#${index + 1} ${entry.gymName}</b> ${entry.playerName}${entry.isHuman ? " (You)" : ""}
         <div class="meta">Score ${entry.score} | ${entry.record} | Avg ${entry.averageRating} | Top fighter: ${entry.topFighter}</div>
-        <div class="meta">${entry.label} | ${entry.submittedAt}</div>
+        <div class="meta">${entry.label} | ${entry.submittedAt} | ${entry.isHuman ? "Player submitted" : "Online player field"}</div>
       </div>
       <span class="tag">${entry.fighters} fighters</span>
     </div>
-  `).join("") : `<div class="empty-state">Submit your gym to start the player leaderboard preview.</div>`;
+  `).join("") : `<div class="empty-state">Submit your gym to join the all-player ranking field.</div>`;
 }
 
 function renderGym() {
