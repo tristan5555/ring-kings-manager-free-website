@@ -138,6 +138,7 @@ const els = {
   homeStartCareer: document.querySelector("#homeStartCareer"),
   homeContinue: document.querySelector("#homeContinue"),
   homeLoginCard: document.querySelector("#homeLoginCard"),
+  homeLoginEmail: document.querySelector("#homeLoginEmail"),
   homeLoginName: document.querySelector("#homeLoginName"),
   homeLoginGym: document.querySelector("#homeLoginGym"),
   homeLoginPassword: document.querySelector("#homeLoginPassword"),
@@ -160,6 +161,7 @@ const els = {
   clearHomeChat: document.querySelector("#clearHomeChat"),
   loginPage: document.querySelector("#loginPage"),
   closeLogin: document.querySelector("#closeLogin"),
+  loginEmail: document.querySelector("#loginEmail"),
   loginName: document.querySelector("#loginName"),
   loginGym: document.querySelector("#loginGym"),
   loginPassword: document.querySelector("#loginPassword"),
@@ -290,17 +292,21 @@ function loadProfile() {
   }
 }
 
-function accountKeyFor(name) {
-  return `ring-kings-manager-account-${name.trim().toLowerCase()}`;
+function accountKeyFor(email) {
+  return `ring-kings-manager-account-${email.trim().toLowerCase()}`;
 }
 
-function loadAccount(name) {
+function loadAccount(email) {
   try {
-    const raw = localStorage.getItem(accountKeyFor(name));
+    const raw = localStorage.getItem(accountKeyFor(email));
     return raw ? JSON.parse(raw) : null;
   } catch (error) {
     return null;
   }
+}
+
+function validEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
 function isLoggedIn() {
@@ -310,12 +316,12 @@ function isLoggedIn() {
 
 function requireLogin() {
   if (isLoggedIn()) return true;
-  const message = "Login with player name and password before playing.";
+  const message = "Login with email and password before playing.";
   showHome();
   if (els.homeLoginStatus) els.homeLoginStatus.textContent = message;
   if (els.loginStatus) els.loginStatus.textContent = message;
   if (els.homeProfileStatus) els.homeProfileStatus.textContent = message;
-  els.homeLoginName?.focus();
+  els.homeLoginEmail?.focus();
   return false;
 }
 
@@ -333,25 +339,35 @@ function renderProfileStatus() {
   const profile = loadProfile();
   const isAdmin = isAdminProfile(profile);
   const message = profile?.name
-    ? `Logged in as ${profile.name}${profile.gym ? ` | ${profile.gym}` : ""}${isAdmin ? " | Website Admin" : ""}.`
+    ? `Logged in as ${profile.name}${profile.email ? ` | ${profile.email}` : ""}${profile.gym ? ` | ${profile.gym}` : ""}${isAdmin ? " | Website Admin" : ""}.`
     : "Playing as Guest.";
   if (els.homeProfileStatus) els.homeProfileStatus.textContent = message;
   if (els.homeLoginStatus) els.homeLoginStatus.textContent = message;
   if (els.loginStatus) els.loginStatus.textContent = message;
+  if (els.loginEmail && profile?.email) els.loginEmail.value = profile.email;
   if (els.loginName && profile?.name) els.loginName.value = profile.name;
   if (els.loginGym && profile?.gym) els.loginGym.value = profile.gym;
+  if (els.homeLoginEmail && profile?.email) els.homeLoginEmail.value = profile.email;
   if (els.homeLoginName && profile?.name) els.homeLoginName.value = profile.name;
   if (els.homeLoginGym && profile?.gym) els.homeLoginGym.value = profile.gym;
   updateAdminAccess();
 }
 
 function saveProfile(source = "modal") {
+  const emailInput = source === "home" ? els.homeLoginEmail : els.loginEmail;
   const nameInput = source === "home" ? els.homeLoginName : els.loginName;
   const gymInput = source === "home" ? els.homeLoginGym : els.loginGym;
   const passwordInput = source === "home" ? els.homeLoginPassword : els.loginPassword;
+  const email = emailInput.value.trim().toLowerCase();
   const name = nameInput.value.trim() || "Guest Manager";
   const gym = gymInput.value.trim() || playerGymName();
   const password = passwordInput.value.trim();
+  if (!validEmail(email)) {
+    const message = "Enter a valid email address.";
+    if (els.loginStatus) els.loginStatus.textContent = message;
+    if (els.homeLoginStatus) els.homeLoginStatus.textContent = message;
+    return;
+  }
   if (!password) {
     const message = "Enter a password to login or create this profile.";
     if (els.loginStatus) els.loginStatus.textContent = message;
@@ -359,16 +375,16 @@ function saveProfile(source = "modal") {
     return;
   }
   try {
-    const existingAccount = loadAccount(name);
+    const existingAccount = loadAccount(email);
     if (existingAccount && existingAccount.password !== password) {
-      const message = "Wrong password for this profile.";
+      const message = "Wrong password for this email.";
       if (els.loginStatus) els.loginStatus.textContent = message;
       if (els.homeLoginStatus) els.homeLoginStatus.textContent = message;
       return;
     }
-    const account = { name, gym, password, savedAt: new Date().toISOString() };
-    localStorage.setItem(accountKeyFor(name), JSON.stringify(account));
-    localStorage.setItem(profileKey, JSON.stringify({ name, gym, savedAt: account.savedAt }));
+    const account = { email, name, gym, password, savedAt: new Date().toISOString() };
+    localStorage.setItem(accountKeyFor(email), JSON.stringify(account));
+    localStorage.setItem(profileKey, JSON.stringify({ email, name, gym, savedAt: account.savedAt }));
     state.playerGym = { name: gym, capacity: maxPlayerFighters };
     ensureGymData();
     render();
@@ -422,6 +438,7 @@ function hideMenu() {
 
 function openLoginPage() {
   const profile = loadProfile();
+  els.loginEmail.value = profile?.email || "";
   els.loginName.value = profile?.name || "";
   els.loginGym.value = profile?.gym || playerGymName();
   els.loginPassword.value = "";
