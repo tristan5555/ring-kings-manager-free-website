@@ -147,6 +147,9 @@ const els = {
   homeChatForm: document.querySelector("#homeChatForm"),
   homeChatInput: document.querySelector("#homeChatInput"),
   homeChatSend: document.querySelector("#homeChatSend"),
+  homeOpenLeaderboard: document.querySelector("#homeOpenLeaderboard"),
+  homeLeaderboardSummary: document.querySelector("#homeLeaderboardSummary"),
+  homeLeaderboardPreview: document.querySelector("#homeLeaderboardPreview"),
   homeAdminToggle: document.querySelector("#homeAdminToggle"),
   homeAdminPanel: document.querySelector("#homeAdminPanel"),
   adminChatInbox: document.querySelector("#adminChatInbox"),
@@ -347,6 +350,7 @@ function showHome() {
   document.body.classList.add("site-open");
   document.body.classList.remove("menu-open");
   renderProfileStatus();
+  renderHomeLeaderboardPreview();
 }
 
 function showMenu() {
@@ -1360,12 +1364,14 @@ function submitOnlineLeaderboard() {
     state.onlineLeaderboard.push(entry);
   }
   render();
+  renderHomeLeaderboardPreview();
   setSaveStatus(`${entry.gymName} submitted to all-player gym rankings as ${entry.playerName}.`);
 }
 
 function refreshOnlineLeaderboard() {
   ensureOnlineLeaderboardField();
   renderOnlineLeaderboard();
+  renderHomeLeaderboardPreview();
   setSaveStatus("All-player gym rankings refreshed.");
 }
 
@@ -1390,6 +1396,26 @@ function renderOnlineLeaderboard() {
       <span class="tag">${entry.fighters} fighters</span>
     </div>
   `).join("") : `<div class="empty-state">Submit your gym to join the all-player ranking field.</div>`;
+}
+
+function renderHomeLeaderboardPreview() {
+  ensureOnlineLeaderboardField();
+  const rankedEntries = [...state.onlineLeaderboard]
+    .sort((a, b) => b.score - a.score || b.averageRating - a.averageRating);
+  const playerRank = rankedEntries.findIndex(entry => entry.id === onlinePlayerId()) + 1;
+  const preview = rankedEntries.slice(0, 5);
+  els.homeLeaderboardSummary.textContent = playerRank
+    ? `Your gym is ranked #${playerRank}. Full board has ${Math.min(100, rankedEntries.length)} gyms.`
+    : `Top ${Math.min(100, rankedEntries.length)} all-player gyms loaded. Submit your gym from the full leaderboard to claim a rank.`;
+  els.homeLeaderboardPreview.innerHTML = preview.map((entry, index) => `
+    <article class="home-rank-card ${entry.isHuman ? "player-rank" : ""}">
+      <b>#${index + 1}</b>
+      <strong>${entry.gymName}</strong>
+      <span>${entry.playerName}${entry.isHuman ? " (You)" : ""}</span>
+      <span>Score ${entry.score} | ${entry.record}</span>
+      <span>Avg ${entry.averageRating} | ${entry.fighters} fighters</span>
+    </article>
+  `).join("");
 }
 
 function renderGym() {
@@ -3231,6 +3257,7 @@ els.homeLoginCard.addEventListener("submit", event => {
   saveProfile("home");
 });
 els.homeChatForm.addEventListener("submit", sendHomeChat);
+els.homeOpenLeaderboard.addEventListener("click", openGymLeaderboard);
 els.homeAdminToggle.addEventListener("click", toggleAdminChat);
 els.adminChatForm.addEventListener("submit", sendAdminChat);
 els.clearHomeChat.addEventListener("click", clearHomeChat);
