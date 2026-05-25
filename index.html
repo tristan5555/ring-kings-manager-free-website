@@ -20,7 +20,82 @@
     <link rel="stylesheet" href="styles.css">
   </head>
   <body>
-    <section id="mainMenu" class="main-menu" aria-label="Main menu">
+    <section id="homePage" class="website-home" aria-label="Website home page">
+      <header class="site-nav">
+        <strong>Ring Kings Manager</strong>
+        <nav aria-label="Website navigation">
+          <button id="homePlayNow" class="primary" type="button">Play</button>
+          <button id="homeLogin" type="button">Login</button>
+        </nav>
+      </header>
+      <div class="home-hero">
+        <p class="eyebrow">Free Text Boxing Manager</p>
+        <h1>Build your boxing gym from prospect nights to world title fights.</h1>
+        <p class="home-copy">Create fighters, sign contracts, train your roster, scout free agents, manage gyms, and simulate weekly promotion cards in a living 2026 boxing universe.</p>
+        <div class="hero-actions">
+          <button id="homeStartCareer" class="primary" type="button">Start Playing</button>
+          <button id="homeContinue" type="button">Continue Save</button>
+        </div>
+        <p id="homeProfileStatus" class="save-status">Playing as Guest.</p>
+      </div>
+      <section class="home-stats" aria-label="Game highlights">
+        <article>
+          <strong>4,000+</strong>
+          <span>sim fighters</span>
+        </article>
+        <article>
+          <strong>6+</strong>
+          <span>promotions</span>
+        </article>
+        <article>
+          <strong>10</strong>
+          <span>fighters in your gym</span>
+        </article>
+        <article>
+          <strong>2026</strong>
+          <span>career start</span>
+        </article>
+      </section>
+      <section class="feature-strip" aria-label="Website features">
+        <article>
+          <h2>Weekly Shows</h2>
+          <p>Promotions shuffle cards, build title fights, and produce text-based results every week.</p>
+        </article>
+        <article>
+          <h2>Gym Career</h2>
+          <p>Train fighters, recruit free agents, follow prospects, and climb the gym leaderboard.</p>
+        </article>
+        <article>
+          <h2>Contracts</h2>
+          <p>Promotions send offers based on rating, record, star power, and market value.</p>
+        </article>
+      </section>
+    </section>
+
+    <section id="loginPage" class="login-page hidden" aria-label="Login page">
+      <div class="login-window">
+        <div class="section-head">
+          <h2>Player Login</h2>
+          <button id="closeLogin" type="button">Close</button>
+        </div>
+        <p class="menu-copy">Save a local player profile for this browser. Your career save still uses the game Save button.</p>
+        <label>
+          Player name
+          <input id="loginName" type="text" maxlength="28" placeholder="Your manager name">
+        </label>
+        <label>
+          Gym name
+          <input id="loginGym" type="text" maxlength="34" placeholder="Your gym name">
+        </label>
+        <div class="login-actions">
+          <button id="saveLogin" class="primary" type="button">Login</button>
+          <button id="logoutProfile" type="button">Logout</button>
+        </div>
+        <p id="loginStatus" class="save-status">Playing as Guest.</p>
+      </div>
+    </section>
+
+    <section id="mainMenu" class="main-menu hidden" aria-label="Main menu">
       <div class="menu-inner">
         <p class="eyebrow">Career Universe</p>
         <h1>Ring Kings Manager</h1>
@@ -33,6 +108,8 @@
           <button id="menuHowToPlay">How to Play</button>
           <button id="menuPromotions">Promotions</button>
           <button id="menuLeaderboard">Leaderboard</button>
+          <button id="menuLogin">Login</button>
+          <button id="menuHome">Home Page</button>
           <button id="menuReset">New Universe</button>
         </div>
         <p id="menuSaveStatus" class="save-status">No save loaded.</p>

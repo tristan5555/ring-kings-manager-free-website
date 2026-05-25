@@ -82,6 +82,7 @@ const mediumFightRounds = [8, 10];
 const featureFightRounds = [10, 12];
 const promotionNameBank = ["Blue Corner Boxing", "Summit Fight Group", "Prime Bell Promotions", "Victory Road Boxing", "Frontier Combat Club", "Golden Ropes League", "Apex Prizefighting", "Legacy Ring Sports", "New Era Boxing", "Global Gloves"];
 const saveKey = "ring-kings-manager-save-v1";
+const profileKey = "ring-kings-manager-profile-v1";
 const startingYear = 2026;
 const defaultPlayerGymName = "Kings Boxing Gym";
 const independentGymName = "Independent / Free Agent";
@@ -118,6 +119,19 @@ let state = {
 };
 
 const els = {
+  homePage: document.querySelector("#homePage"),
+  homePlayNow: document.querySelector("#homePlayNow"),
+  homeLogin: document.querySelector("#homeLogin"),
+  homeStartCareer: document.querySelector("#homeStartCareer"),
+  homeContinue: document.querySelector("#homeContinue"),
+  homeProfileStatus: document.querySelector("#homeProfileStatus"),
+  loginPage: document.querySelector("#loginPage"),
+  closeLogin: document.querySelector("#closeLogin"),
+  loginName: document.querySelector("#loginName"),
+  loginGym: document.querySelector("#loginGym"),
+  saveLogin: document.querySelector("#saveLogin"),
+  logoutProfile: document.querySelector("#logoutProfile"),
+  loginStatus: document.querySelector("#loginStatus"),
   mainMenu: document.querySelector("#mainMenu"),
   startCareer: document.querySelector("#startCareer"),
   openUniverse: document.querySelector("#openUniverse"),
@@ -126,6 +140,8 @@ const els = {
   menuHowToPlay: document.querySelector("#menuHowToPlay"),
   menuPromotions: document.querySelector("#menuPromotions"),
   menuLeaderboard: document.querySelector("#menuLeaderboard"),
+  menuLogin: document.querySelector("#menuLogin"),
+  menuHome: document.querySelector("#menuHome"),
   menuReset: document.querySelector("#menuReset"),
   howToPlayPanel: document.querySelector("#howToPlayPanel"),
   closeHowToPlay: document.querySelector("#closeHowToPlay"),
@@ -231,14 +247,87 @@ const els = {
   weeklyFights: document.querySelector("#weeklyFights")
 };
 
+function loadProfile() {
+  try {
+    const raw = localStorage.getItem(profileKey);
+    return raw ? JSON.parse(raw) : null;
+  } catch (error) {
+    return null;
+  }
+}
+
+function renderProfileStatus() {
+  const profile = loadProfile();
+  const message = profile?.name
+    ? `Logged in as ${profile.name}${profile.gym ? ` | ${profile.gym}` : ""}.`
+    : "Playing as Guest.";
+  if (els.homeProfileStatus) els.homeProfileStatus.textContent = message;
+  if (els.loginStatus) els.loginStatus.textContent = message;
+  if (els.loginName && profile?.name) els.loginName.value = profile.name;
+  if (els.loginGym && profile?.gym) els.loginGym.value = profile.gym;
+}
+
+function saveProfile() {
+  const name = els.loginName.value.trim() || "Guest Manager";
+  const gym = els.loginGym.value.trim() || playerGymName();
+  try {
+    localStorage.setItem(profileKey, JSON.stringify({ name, gym, savedAt: new Date().toISOString() }));
+    state.playerGym = { name: gym, capacity: maxPlayerFighters };
+    ensureGymData();
+    render();
+    renderProfileStatus();
+    setSaveStatus(`Logged in as ${name}.`);
+    closeLoginPage();
+  } catch (error) {
+    if (els.loginStatus) els.loginStatus.textContent = "Login could not be saved in this browser.";
+  }
+}
+
+function logoutProfile() {
+  try {
+    localStorage.removeItem(profileKey);
+  } catch (error) {
+    // Ignore blocked storage; the UI still falls back to guest mode.
+  }
+  renderProfileStatus();
+  setSaveStatus("Logged out. Playing as Guest.");
+}
+
+function showHome() {
+  els.homePage.classList.remove("hidden");
+  els.mainMenu.classList.add("hidden");
+  closeLoginPage();
+  document.body.classList.add("site-open");
+  document.body.classList.remove("menu-open");
+  renderProfileStatus();
+}
+
 function showMenu() {
+  els.homePage.classList.add("hidden");
   els.mainMenu.classList.remove("hidden");
+  closeLoginPage();
   document.body.classList.add("menu-open");
+  document.body.classList.remove("site-open");
 }
 
 function hideMenu() {
+  els.homePage.classList.add("hidden");
   els.mainMenu.classList.add("hidden");
   document.body.classList.remove("menu-open");
+  document.body.classList.remove("site-open");
+  closeLoginPage();
+}
+
+function openLoginPage() {
+  const profile = loadProfile();
+  els.loginName.value = profile?.name || "";
+  els.loginGym.value = profile?.gym || playerGymName();
+  els.loginPage.classList.remove("hidden");
+  renderProfileStatus();
+}
+
+function closeLoginPage() {
+  els.loginPage.classList.add("hidden");
 }
 
 function setSaveStatus(message) {
@@ -2914,6 +3003,18 @@ els.closeHowToPlay.addEventListener("click", () => closePanel(els.howToPlayPanel
 els.howToPlayPanel.addEventListener("click", event => {
   if (event.target === els.howToPlayPanel) closePanel(els.howToPlayPanel);
 });
+els.homePlayNow.addEventListener("click", showMenu);
+els.homeStartCareer.addEventListener("click", showMenu);
+els.homeContinue.addEventListener("click", openUniverseOrSave);
+els.homeLogin.addEventListener("click", openLoginPage);
+els.closeLogin.addEventListener("click", closeLoginPage);
+els.loginPage.addEventListener("click", event => {
+  if (event.target === els.loginPage) closeLoginPage();
+});
+els.saveLogin.addEventListener("click", saveProfile);
+els.logoutProfile.addEventListener("click", logoutProfile);
+els.menuLogin.addEventListener("click", openLoginPage);
+els.menuHome.addEventListener("click", showHome);
 els.startCareer.addEventListener("click", () => jumpTo(".creator"));
 els.openUniverse.addEventListener("click", openUniverseOrSave);
 els.menuPromotions.addEventListener("click", () => {
@@ -2938,5 +3039,6 @@ populateControls();
 renderContracts();
 generateUniverse();
 render();
+renderProfileStatus();
 setSaveStatus(hasSavedGame() ? "Saved game found. Press Load Game or Open Universe to continue." : "No save loaded.");
-showMenu();
+showHome();
