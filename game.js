@@ -143,6 +143,7 @@ const els = {
   homeLoginGym: document.querySelector("#homeLoginGym"),
   homeLoginPassword: document.querySelector("#homeLoginPassword"),
   homeSaveLogin: document.querySelector("#homeSaveLogin"),
+  homeForgotPassword: document.querySelector("#homeForgotPassword"),
   homeProfileStatus: document.querySelector("#homeProfileStatus"),
   homeLoginStatus: document.querySelector("#homeLoginStatus"),
   homeChatLog: document.querySelector("#homeChatLog"),
@@ -166,6 +167,7 @@ const els = {
   loginGym: document.querySelector("#loginGym"),
   loginPassword: document.querySelector("#loginPassword"),
   saveLogin: document.querySelector("#saveLogin"),
+  forgotPassword: document.querySelector("#forgotPassword"),
   logoutProfile: document.querySelector("#logoutProfile"),
   loginStatus: document.querySelector("#loginStatus"),
   mainMenu: document.querySelector("#mainMenu"),
@@ -396,6 +398,29 @@ function saveProfile(source = "modal") {
     if (els.loginStatus) els.loginStatus.textContent = "Login could not be saved in this browser.";
     if (els.homeLoginStatus) els.homeLoginStatus.textContent = "Login could not be saved in this browser.";
   }
+}
+
+function forgotPassword(source = "modal") {
+  const emailInput = source === "home" ? els.homeLoginEmail : els.loginEmail;
+  const passwordInput = source === "home" ? els.homeLoginPassword : els.loginPassword;
+  const nameInput = source === "home" ? els.homeLoginName : els.loginName;
+  const gymInput = source === "home" ? els.homeLoginGym : els.loginGym;
+  const status = source === "home" ? els.homeLoginStatus : els.loginStatus;
+  const email = emailInput.value.trim().toLowerCase();
+  if (!validEmail(email)) {
+    status.textContent = "Enter your saved email first.";
+    emailInput.focus();
+    return;
+  }
+  const account = loadAccount(email);
+  if (!account) {
+    status.textContent = "No local account found for that email on this browser.";
+    return;
+  }
+  passwordInput.value = account.password || "";
+  nameInput.value = account.name || "";
+  gymInput.value = account.gym || playerGymName();
+  status.textContent = `Password found for ${email}. It has been filled in.`;
 }
 
 function logoutProfile() {
@@ -3328,6 +3353,7 @@ els.homeLoginCard.addEventListener("submit", event => {
   event.preventDefault();
   saveProfile("home");
 });
+els.homeForgotPassword.addEventListener("click", () => forgotPassword("home"));
 els.homeChatForm.addEventListener("submit", sendHomeChat);
 els.homeOpenLeaderboard.addEventListener("click", openGymLeaderboard);
 els.homeAdminToggle.addEventListener("click", toggleAdminChat);
@@ -3338,6 +3364,7 @@ els.loginPage.addEventListener("click", event => {
   if (event.target === els.loginPage) closeLoginPage();
 });
 els.saveLogin.addEventListener("click", saveProfile);
+els.forgotPassword.addEventListener("click", () => forgotPassword("modal"));
 els.logoutProfile.addEventListener("click", logoutProfile);
 els.menuLogin.addEventListener("click", openLoginPage);
 els.menuHome.addEventListener("click", showHome);

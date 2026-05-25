@@ -58,7 +58,10 @@
             Password
             <input id="homeLoginPassword" type="password" maxlength="32" placeholder="Create or enter password">
           </label>
-          <button id="homeSaveLogin" class="primary" type="submit">Login</button>
+          <div class="login-actions">
+            <button id="homeSaveLogin" class="primary" type="submit">Login</button>
+            <button id="homeForgotPassword" type="button">Forgot Password?</button>
+          </div>
           <p id="homeLoginStatus" class="save-status">Local profile and password for this browser.</p>
         </form>
       </div>
@@ -165,6 +168,7 @@
         </label>
         <div class="login-actions">
           <button id="saveLogin" class="primary" type="button">Login</button>
+          <button id="forgotPassword" type="button">Forgot Password?</button>
           <button id="logoutProfile" type="button">Logout</button>
         </div>
         <p id="loginStatus" class="save-status">Playing as Guest.</p>

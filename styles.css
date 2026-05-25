@@ -201,6 +201,10 @@ button.primary {
   padding: 0 12px;
 }
 
+.home-login-card .login-actions {
+  margin-top: 0;
+}
+
 .home-chat {
   width: min(1160px, 100%);
   margin: 24px auto 0;
