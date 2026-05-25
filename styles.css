@@ -104,6 +104,10 @@ button.primary {
   display: none;
 }
 
+.hidden {
+  display: none !important;
+}
+
 .site-nav {
   display: flex;
   align-items: center;

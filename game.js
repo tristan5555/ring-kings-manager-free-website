@@ -273,10 +273,21 @@ function loadProfile() {
   }
 }
 
+function isAdminProfile(profile = loadProfile()) {
+  return profile?.name?.trim().toLowerCase() === "admin";
+}
+
+function updateAdminAccess() {
+  const isAdmin = isAdminProfile();
+  els.homeAdminToggle.classList.toggle("hidden", !isAdmin);
+  if (!isAdmin) els.homeAdminPanel.classList.add("hidden");
+}
+
 function renderProfileStatus() {
   const profile = loadProfile();
+  const isAdmin = isAdminProfile(profile);
   const message = profile?.name
-    ? `Logged in as ${profile.name}${profile.gym ? ` | ${profile.gym}` : ""}.`
+    ? `Logged in as ${profile.name}${profile.gym ? ` | ${profile.gym}` : ""}${isAdmin ? " | Website Admin" : ""}.`
     : "Playing as Guest.";
   if (els.homeProfileStatus) els.homeProfileStatus.textContent = message;
   if (els.homeLoginStatus) els.homeLoginStatus.textContent = message;
@@ -285,6 +296,7 @@ function renderProfileStatus() {
   if (els.loginGym && profile?.gym) els.loginGym.value = profile.gym;
   if (els.homeLoginName && profile?.name) els.homeLoginName.value = profile.name;
   if (els.homeLoginGym && profile?.gym) els.homeLoginGym.value = profile.gym;
+  updateAdminAccess();
 }
 
 function saveProfile(source = "modal") {
@@ -462,6 +474,10 @@ function sendAdminChat(event) {
 }
 
 function toggleAdminChat() {
+  if (!isAdminProfile()) {
+    els.homeAdminPanel.classList.add("hidden");
+    return;
+  }
   els.homeAdminPanel.classList.toggle("hidden");
   renderHomeChat();
 }
