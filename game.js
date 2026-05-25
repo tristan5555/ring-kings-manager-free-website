@@ -303,6 +303,22 @@ function loadAccount(name) {
   }
 }
 
+function isLoggedIn() {
+  const profile = loadProfile();
+  return Boolean(profile?.name);
+}
+
+function requireLogin() {
+  if (isLoggedIn()) return true;
+  const message = "Login with player name and password before playing.";
+  showHome();
+  if (els.homeLoginStatus) els.homeLoginStatus.textContent = message;
+  if (els.loginStatus) els.loginStatus.textContent = message;
+  if (els.homeProfileStatus) els.homeProfileStatus.textContent = message;
+  els.homeLoginName?.focus();
+  return false;
+}
+
 function isAdminProfile(profile = loadProfile()) {
   return profile?.name?.trim().toLowerCase() === "admin";
 }
@@ -374,6 +390,7 @@ function logoutProfile() {
   }
   renderProfileStatus();
   setSaveStatus("Logged out. Playing as Guest.");
+  showHome();
 }
 
 function showHome() {
@@ -387,6 +404,7 @@ function showHome() {
 }
 
 function showMenu() {
+  if (!requireLogin()) return;
   els.homePage.classList.add("hidden");
   els.mainMenu.classList.remove("hidden");
   closeLoginPage();
@@ -647,6 +665,7 @@ function hasSavedGame() {
 }
 
 function openUniverseOrSave() {
+  if (!requireLogin()) return;
   if (hasSavedGame()) {
     loadGame();
     hideMenu();
@@ -656,6 +675,7 @@ function openUniverseOrSave() {
 }
 
 function jumpTo(selector) {
+  if (!requireLogin()) return;
   hideMenu();
   document.querySelector(selector)?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
@@ -669,6 +689,7 @@ function closePanel(panel) {
 }
 
 function openGymLeaderboard() {
+  if (!requireLogin()) return;
   hideMenu();
   openPanel(els.gymPanel);
   requestAnimationFrame(() => {
@@ -3306,12 +3327,14 @@ els.menuHome.addEventListener("click", showHome);
 els.startCareer.addEventListener("click", () => jumpTo(".creator"));
 els.openUniverse.addEventListener("click", openUniverseOrSave);
 els.menuPromotions.addEventListener("click", () => {
+  if (!requireLogin()) return;
   hideMenu();
   openPanel(els.contractsPanel);
 });
 els.menuLeaderboard.addEventListener("click", openGymLeaderboard);
 els.backToMenu.addEventListener("click", showMenu);
 els.menuReset.addEventListener("click", () => {
+  if (!requireLogin()) return;
   generateUniverse();
   render();
   setSaveStatus("New universe started. Save when ready.");
