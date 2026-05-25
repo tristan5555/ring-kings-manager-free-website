@@ -399,6 +399,65 @@ button.primary {
   line-height: 1.4;
 }
 
+.home-listing {
+  width: min(1160px, 100%);
+  margin: 18px auto 0;
+  border: 1px solid rgba(245, 241, 232, .18);
+  border-radius: 8px;
+  background: rgba(17, 19, 24, .84);
+  padding: 16px;
+  box-shadow: 0 20px 55px rgba(0, 0, 0, .2);
+  backdrop-filter: blur(12px);
+}
+
+.listing-link {
+  display: inline-grid;
+  place-items: center;
+  min-height: 42px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--panel-2);
+  color: var(--text);
+  padding: 0 12px;
+  text-decoration: none;
+}
+
+.listing-link:hover {
+  border-color: var(--gold);
+}
+
+.listing-grid {
+  display: grid;
+  grid-template-columns: minmax(260px, .75fr) minmax(0, 1.25fr);
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.listing-grid article {
+  border: 1px solid rgba(245, 241, 232, .13);
+  border-radius: 8px;
+  background: #121419;
+  padding: 12px;
+}
+
+.listing-grid span {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  margin-bottom: 6px;
+}
+
+.listing-grid strong {
+  color: var(--gold);
+  overflow-wrap: anywhere;
+}
+
+.listing-grid p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
 .home-stats,
 .feature-strip {
   display: grid;
@@ -1588,7 +1647,8 @@ select {
   .home-stats,
   .feature-strip,
   .chat-form,
-  .home-leaderboard-list {
+  .home-leaderboard-list,
+  .listing-grid {
     grid-template-columns: 1fr;
   }
 
