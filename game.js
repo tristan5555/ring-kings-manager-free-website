@@ -140,6 +140,7 @@ const els = {
   homeLoginCard: document.querySelector("#homeLoginCard"),
   homeLoginName: document.querySelector("#homeLoginName"),
   homeLoginGym: document.querySelector("#homeLoginGym"),
+  homeLoginPassword: document.querySelector("#homeLoginPassword"),
   homeSaveLogin: document.querySelector("#homeSaveLogin"),
   homeProfileStatus: document.querySelector("#homeProfileStatus"),
   homeLoginStatus: document.querySelector("#homeLoginStatus"),
@@ -161,6 +162,7 @@ const els = {
   closeLogin: document.querySelector("#closeLogin"),
   loginName: document.querySelector("#loginName"),
   loginGym: document.querySelector("#loginGym"),
+  loginPassword: document.querySelector("#loginPassword"),
   saveLogin: document.querySelector("#saveLogin"),
   logoutProfile: document.querySelector("#logoutProfile"),
   loginStatus: document.querySelector("#loginStatus"),
@@ -288,6 +290,19 @@ function loadProfile() {
   }
 }
 
+function accountKeyFor(name) {
+  return `ring-kings-manager-account-${name.trim().toLowerCase()}`;
+}
+
+function loadAccount(name) {
+  try {
+    const raw = localStorage.getItem(accountKeyFor(name));
+    return raw ? JSON.parse(raw) : null;
+  } catch (error) {
+    return null;
+  }
+}
+
 function isAdminProfile(profile = loadProfile()) {
   return profile?.name?.trim().toLowerCase() === "admin";
 }
@@ -317,14 +332,32 @@ function renderProfileStatus() {
 function saveProfile(source = "modal") {
   const nameInput = source === "home" ? els.homeLoginName : els.loginName;
   const gymInput = source === "home" ? els.homeLoginGym : els.loginGym;
+  const passwordInput = source === "home" ? els.homeLoginPassword : els.loginPassword;
   const name = nameInput.value.trim() || "Guest Manager";
   const gym = gymInput.value.trim() || playerGymName();
+  const password = passwordInput.value.trim();
+  if (!password) {
+    const message = "Enter a password to login or create this profile.";
+    if (els.loginStatus) els.loginStatus.textContent = message;
+    if (els.homeLoginStatus) els.homeLoginStatus.textContent = message;
+    return;
+  }
   try {
-    localStorage.setItem(profileKey, JSON.stringify({ name, gym, savedAt: new Date().toISOString() }));
+    const existingAccount = loadAccount(name);
+    if (existingAccount && existingAccount.password !== password) {
+      const message = "Wrong password for this profile.";
+      if (els.loginStatus) els.loginStatus.textContent = message;
+      if (els.homeLoginStatus) els.homeLoginStatus.textContent = message;
+      return;
+    }
+    const account = { name, gym, password, savedAt: new Date().toISOString() };
+    localStorage.setItem(accountKeyFor(name), JSON.stringify(account));
+    localStorage.setItem(profileKey, JSON.stringify({ name, gym, savedAt: account.savedAt }));
     state.playerGym = { name: gym, capacity: maxPlayerFighters };
     ensureGymData();
     render();
     renderProfileStatus();
+    passwordInput.value = "";
     setSaveStatus(`Logged in as ${name}.`);
     if (source !== "home") closeLoginPage();
   } catch (error) {
@@ -373,6 +406,7 @@ function openLoginPage() {
   const profile = loadProfile();
   els.loginName.value = profile?.name || "";
   els.loginGym.value = profile?.gym || playerGymName();
+  els.loginPassword.value = "";
   els.loginPage.classList.remove("hidden");
   renderProfileStatus();
 }
