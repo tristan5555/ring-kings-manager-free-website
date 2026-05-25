@@ -60,7 +60,10 @@
             <p class="eyebrow">Corner Chat</p>
             <h2>Ask the game coach</h2>
           </div>
-          <span class="tag ready-tag">Local chat</span>
+          <div class="chat-tools">
+            <span class="tag ready-tag">Local chat</span>
+            <button id="homeAdminToggle" type="button">Admin View</button>
+          </div>
         </div>
         <div id="homeChatLog" class="chat-log" aria-live="polite">
           <div class="chat-message coach">
@@ -72,6 +75,17 @@
           <input id="homeChatInput" type="text" maxlength="140" placeholder="Ask about the boxing manager...">
           <button id="homeChatSend" class="primary" type="submit">Send</button>
         </form>
+        <div id="homeAdminPanel" class="admin-chat hidden">
+          <div class="section-head">
+            <h3>Admin Chat Inbox</h3>
+            <button id="clearHomeChat" type="button">Clear Chat</button>
+          </div>
+          <div id="adminChatInbox" class="admin-inbox"></div>
+          <form id="adminChatForm" class="chat-form">
+            <input id="adminChatInput" type="text" maxlength="160" placeholder="Admin response...">
+            <button id="adminChatSend" class="primary" type="submit">Respond</button>
+          </form>
+        </div>
       </section>
       <section class="home-stats" aria-label="Game highlights">
         <article>

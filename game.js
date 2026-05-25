@@ -83,6 +83,7 @@ const featureFightRounds = [10, 12];
 const promotionNameBank = ["Blue Corner Boxing", "Summit Fight Group", "Prime Bell Promotions", "Victory Road Boxing", "Frontier Combat Club", "Golden Ropes League", "Apex Prizefighting", "Legacy Ring Sports", "New Era Boxing", "Global Gloves"];
 const saveKey = "ring-kings-manager-save-v1";
 const profileKey = "ring-kings-manager-profile-v1";
+const homeChatKey = "ring-kings-manager-home-chat-v1";
 const startingYear = 2026;
 const defaultPlayerGymName = "Kings Boxing Gym";
 const independentGymName = "Independent / Free Agent";
@@ -134,6 +135,13 @@ const els = {
   homeChatForm: document.querySelector("#homeChatForm"),
   homeChatInput: document.querySelector("#homeChatInput"),
   homeChatSend: document.querySelector("#homeChatSend"),
+  homeAdminToggle: document.querySelector("#homeAdminToggle"),
+  homeAdminPanel: document.querySelector("#homeAdminPanel"),
+  adminChatInbox: document.querySelector("#adminChatInbox"),
+  adminChatForm: document.querySelector("#adminChatForm"),
+  adminChatInput: document.querySelector("#adminChatInput"),
+  adminChatSend: document.querySelector("#adminChatSend"),
+  clearHomeChat: document.querySelector("#clearHomeChat"),
   loginPage: document.querySelector("#loginPage"),
   closeLogin: document.querySelector("#closeLogin"),
   loginName: document.querySelector("#loginName"),
@@ -371,14 +379,69 @@ function chatReplyFor(message) {
   return "Good question. Try the game menu for Contracts, Training, Fight Offers, Gym, Rankings, and News. The best first move is sign a prospect, train weekly, then accept a fair fight offer.";
 }
 
-function addHomeChatMessage(sender, message, type = "coach") {
+function defaultHomeChat() {
+  return [{
+    sender: "Coach",
+    message: "Welcome to Ring Kings Manager. Ask about training, contracts, fight offers, gyms, saves, rankings, or weekly shows.",
+    type: "coach",
+    time: new Date().toISOString()
+  }];
+}
+
+function loadHomeChat() {
+  try {
+    const raw = localStorage.getItem(homeChatKey);
+    const messages = raw ? JSON.parse(raw) : defaultHomeChat();
+    return Array.isArray(messages) && messages.length ? messages : defaultHomeChat();
+  } catch (error) {
+    return defaultHomeChat();
+  }
+}
+
+function saveHomeChat(messages) {
+  try {
+    localStorage.setItem(homeChatKey, JSON.stringify(messages.slice(-40)));
+  } catch (error) {
+    // Chat still works for the current page even if browser storage is blocked.
+  }
+}
+
+function renderHomeChat() {
+  const messages = loadHomeChat();
+  els.homeChatLog.innerHTML = "";
+  els.adminChatInbox.innerHTML = "";
+  messages.slice(-8).forEach(({ sender, message, type }) => appendHomeChatBubble(sender, message, type));
+  messages.slice(-20).forEach(({ sender, message, time }) => {
+    const row = document.createElement("div");
+    row.className = "admin-inbox-row";
+    const name = document.createElement("b");
+    name.textContent = sender;
+    const text = document.createElement("span");
+    const stamp = time ? new Date(time).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) : "Now";
+    text.textContent = `${message} (${stamp})`;
+    row.append(name, text);
+    els.adminChatInbox.appendChild(row);
+  });
+  els.homeChatLog.scrollTop = els.homeChatLog.scrollHeight;
+  els.adminChatInbox.scrollTop = els.adminChatInbox.scrollHeight;
+}
+
+function appendHomeChatBubble(sender, message, type = "coach") {
   const item = document.createElement("div");
   item.className = `chat-message ${type}`;
-  item.innerHTML = `<strong>${sender}</strong><p>${message}</p>`;
+  const name = document.createElement("strong");
+  const text = document.createElement("p");
+  name.textContent = sender;
+  text.textContent = message;
+  item.append(name, text);
   els.homeChatLog.appendChild(item);
-  const messages = [...els.homeChatLog.querySelectorAll(".chat-message")];
-  messages.slice(0, Math.max(0, messages.length - 8)).forEach(messageItem => messageItem.remove());
-  els.homeChatLog.scrollTop = els.homeChatLog.scrollHeight;
+}
+
+function addHomeChatMessage(sender, message, type = "coach") {
+  const messages = loadHomeChat();
+  messages.push({ sender, message, type, time: new Date().toISOString() });
+  saveHomeChat(messages);
+  renderHomeChat();
 }
 
 function sendHomeChat(event) {
@@ -388,6 +451,24 @@ function sendHomeChat(event) {
   addHomeChatMessage("You", message, "player");
   els.homeChatInput.value = "";
   window.setTimeout(() => addHomeChatMessage("Coach", chatReplyFor(message), "coach"), 180);
+}
+
+function sendAdminChat(event) {
+  event.preventDefault();
+  const message = els.adminChatInput.value.trim();
+  if (!message) return;
+  addHomeChatMessage("Admin", message, "admin");
+  els.adminChatInput.value = "";
+}
+
+function toggleAdminChat() {
+  els.homeAdminPanel.classList.toggle("hidden");
+  renderHomeChat();
+}
+
+function clearHomeChat() {
+  saveHomeChat(defaultHomeChat());
+  renderHomeChat();
 }
 
 function setSaveStatus(message) {
@@ -3072,6 +3153,9 @@ els.homeLoginCard.addEventListener("submit", event => {
   saveProfile("home");
 });
 els.homeChatForm.addEventListener("submit", sendHomeChat);
+els.homeAdminToggle.addEventListener("click", toggleAdminChat);
+els.adminChatForm.addEventListener("submit", sendAdminChat);
+els.clearHomeChat.addEventListener("click", clearHomeChat);
 els.closeLogin.addEventListener("click", closeLoginPage);
 els.loginPage.addEventListener("click", event => {
   if (event.target === els.loginPage) closeLoginPage();
@@ -3105,5 +3189,6 @@ renderContracts();
 generateUniverse();
 render();
 renderProfileStatus();
+renderHomeChat();
 setSaveStatus(hasSavedGame() ? "Saved game found. Press Load Game or Open Universe to continue." : "No save loaded.");
 showHome();

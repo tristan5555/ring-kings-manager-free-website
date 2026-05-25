@@ -216,6 +216,19 @@ button.primary {
   margin-bottom: 12px;
 }
 
+.chat-tools {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.chat-tools button {
+  min-height: 34px;
+  padding: 0 10px;
+}
+
 .chat-head h2 {
   margin: -2px 0 0;
   font-size: 22px;
@@ -241,6 +254,11 @@ button.primary {
   justify-self: end;
   border-color: rgba(216, 165, 58, .4);
   background: #231d12;
+}
+
+.chat-message.admin {
+  border-color: rgba(92, 143, 214, .48);
+  background: #121d2b;
 }
 
 .chat-message strong {
@@ -274,6 +292,45 @@ button.primary {
 
 .chat-form button {
   min-width: 88px;
+}
+
+.admin-chat {
+  margin-top: 14px;
+  border-top: 1px solid rgba(245, 241, 232, .14);
+  padding-top: 14px;
+}
+
+.admin-chat.hidden {
+  display: none;
+}
+
+.admin-chat h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.admin-inbox {
+  display: grid;
+  gap: 6px;
+  max-height: 190px;
+  overflow: auto;
+  margin-top: 10px;
+}
+
+.admin-inbox-row {
+  display: grid;
+  grid-template-columns: 88px minmax(0, 1fr);
+  gap: 8px;
+  border: 1px solid rgba(245, 241, 232, .12);
+  border-radius: 7px;
+  background: #111318;
+  padding: 8px 10px;
+  color: var(--muted);
+  line-height: 1.35;
+}
+
+.admin-inbox-row b {
+  color: var(--gold);
 }
 
 .home-stats,
@@ -1500,6 +1557,14 @@ select {
   .chat-head {
     align-items: start;
     flex-direction: column;
+  }
+
+  .chat-tools {
+    justify-content: flex-start;
+  }
+
+  .admin-inbox-row {
+    grid-template-columns: 1fr;
   }
 
   .actions,
